@@ -1,7 +1,8 @@
 """
 Generate duplicate and non-duplicate pairs from
 `sentence-transformers/stackexchange-duplicates` with a simple DFS approach.
-Runs all Hugging Face configs (title/body/post) and writes split JSONL files per config.
+Runs all Hugging Face configs (title/body/post), saves the raw HF records, and writes
+split JSONL files per config.
 """
 
 import json
@@ -26,13 +27,29 @@ NEG_POS_RATIO = 1.0  # 1.0 => same number of negatives as positives
 SEED = 42
 
 
-def load_pairs(config: str, field1: str, field2: str) -> List[Tuple[str, str]]:
-    """Load raw duplicate pairs from the Hugging Face dataset for a given config."""
+def load_pairs_and_save_raw(
+    config: str, field1: str, field2: str, raw_path: Path
+) -> List[Tuple[str, str]]:
+    """
+    Load raw duplicate pairs from Hugging Face for a given config and write the raw
+    examples to disk for comparison/debugging.
+    """
     ds = load_dataset("sentence-transformers/stackexchange-duplicates", config, split="train")
-    res: List[Tuple[str, str]] = []
-    for ex in ds:
-        res.append((ex[field1], ex[field2]))
-    return res
+    if raw_path.exists():
+        raw_path.unlink()
+
+    pairs: List[Tuple[str, str]] = []
+    written = 0
+    with raw_path.open("w", encoding="utf-8") as f:
+        for ex in ds:
+            pairs.append((ex[field1], ex[field2]))
+            f.write(json.dumps(ex, ensure_ascii=False) + "\n")
+            written += 1
+            if written % 100000 == 0:
+                print(f"{config}: wrote {written} raw rows so far...")
+
+    print(f"{config}: wrote {written} raw rows to {raw_path}")
+    return pairs
 
 
 def build_graph(pairs: List[Tuple[str, str]]) -> Dict[str, Set[str]]:
@@ -120,8 +137,10 @@ def main() -> None:
         output_dir.mkdir(parents=True, exist_ok=True)
 
         print(f"=== Processing config: {config} ===")
-        print("Loading dataset...")
-        pairs = load_pairs(config, field1, field2)
+        raw_path = output_dir / "raw_original.jsonl"
+
+        print("Loading dataset and writing raw copy...")
+        pairs = load_pairs_and_save_raw(config, field1, field2, raw_path)
         print(f"Loaded raw pairs: {len(pairs)}")
 
         print("Building graph...")
@@ -193,7 +212,7 @@ def main() -> None:
             written = 0
             with out_path.open("w", encoding="utf-8") as f:
                 for rec in all_records:
-                    f.write(json.dumps(rec, ensure_ascii=True) + "\n")
+                    f.write(json.dumps(rec, ensure_ascii=False) + "\n")
                     written += 1
                     if written % 100000 == 0:
                         print(f"{config}/{split_name}: wrote {written}/{len(all_records)} rows so far.")
