@@ -1,0 +1,38 @@
+{
+  "config": "post-post-pair",
+  "field1": "post1",
+  "field2": "post2",
+  "raw_pairs": 250519,
+  "unique_texts": 367234,
+  "num_clusters": 117252,
+  "num_clusters_ge_3": 30439,
+  "split_cluster_counts": {
+    "train": 93801,
+    "val": 11725,
+    "test": 11726
+  },
+  "splits": {
+    "train": {
+      "positives": 201138,
+      "negatives": 201138,
+      "total": 402276
+    },
+    "val": {
+      "positives": 23252,
+      "negatives": 23252,
+      "total": 46504
+    },
+    "test": {
+      "positives": 26052,
+      "negatives": 26052,
+      "total": 52104
+    }
+  },
+  "settings": {
+    "train_ratio": 0.8,
+    "val_ratio": 0.1,
+    "test_ratio": 0.1,
+    "neg_pos_ratio": 1.0,
+    "seed": 26855092
+  }
+}

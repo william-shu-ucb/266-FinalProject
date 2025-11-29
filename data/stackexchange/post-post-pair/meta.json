@@ -1,0 +1,18 @@
+{
+  "hf_config": "post-post-pair",
+  "field1": "post1",
+  "field2": "post2",
+  "train_ratio": 0.8,
+  "val_ratio": 0.1,
+  "test_ratio": 0.1,
+  "neg_pos_ratio": 1.0,
+  "seed": 26855092,
+  "num_titles": 367234,
+  "num_clusters": 117252,
+  "num_clusters_ge_3": 30439,
+  "split_cluster_counts": {
+    "train": 93801,
+    "val": 11725,
+    "test": 11726
+  }
+}

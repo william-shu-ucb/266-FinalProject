@@ -1,0 +1,18 @@
+{
+  "hf_config": "body-body-pair",
+  "field1": "body1",
+  "field2": "body2",
+  "train_ratio": 0.8,
+  "val_ratio": 0.1,
+  "test_ratio": 0.1,
+  "neg_pos_ratio": 1.0,
+  "seed": 119540831,
+  "num_titles": 366863,
+  "num_clusters": 117089,
+  "num_clusters_ge_3": 30421,
+  "split_cluster_counts": {
+    "train": 93671,
+    "val": 11708,
+    "test": 11710
+  }
+}
