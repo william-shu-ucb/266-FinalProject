@@ -13,7 +13,7 @@ from typing import Dict, List, Set, Tuple
 from datasets import load_dataset
 
 # Declarative settings
-BASE_OUTPUT_DIR = Path("data/stackexchange")
+BASE_OUTPUT_DIR = Path("data")
 CONFIGS = ["title-title-pair", "body-body-pair", "post-post-pair"]
 FIELD_MAP = {
     "title-title-pair": ("title1", "title2"),
