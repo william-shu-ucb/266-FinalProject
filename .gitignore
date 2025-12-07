@@ -1,0 +1,30 @@
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+
+# LaTeX tool caches
+_minted*
+*.xdv
+*.pdfsync
+
+# Optional: uncomment if you do not commit generated PDFs
+# *.pdf
+
+# If using a build/output directory, keep it ignored
+build/
+out/
+dist/
