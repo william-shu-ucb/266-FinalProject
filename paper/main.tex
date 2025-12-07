@@ -4,6 +4,7 @@
 \usepackage{latexsym}
 \usepackage{microtype}
 \usepackage{inconsolata}
+\usepackage{graphicx}
 
 \title{Duplicate Question Detection in Technical Q\&A Forums}
 
@@ -74,7 +75,32 @@ All models are fine-tuned separately for the title, body, and post datasets. We 
 Evaluation follows the cluster-aware splits described earlier: all questions belonging to the same duplicate cluster remain within the same split to avoid label leakage. Models are selected based on validation performance and evaluated on accuracy and F1 score, with F1 providing a more balanced measure in scenarios where false positives and false negatives carry asymmetric costs. Using three textual views, titles, bodies, and full posts, allows us to examine how model performance scales with increasing linguistic complexity.
 
 \section{Results and Discussion}
-% intentionally left blank
+Figure~\ref{fig:dataset-performance} compares model performance across the title, body, and post datasets. As expected, accuracy declines as inputs become longer and more variable, but ModernBERT and RoBERTa cross-encoders consistently outperform lexical and lighter transformer baselines, indicating the value of richer token interactions for technical text.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{Performance_across_Datasets.png}
+    \caption{Model accuracy across the title, body, and post datasets. Performance drops on longer inputs, with ModernBERT retaining the highest scores.}
+    \label{fig:dataset-performance}
+\end{figure}
+
+Figure~\ref{fig:f1-length} highlights how F1 varies with question length. The cross-encoder models maintain stable precision and recall on short and medium examples, but performance decreases on the longest posts, suggesting further gains could come from length-aware truncation or hierarchical encoding.
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{f1_vs_length.png}
+    \caption{F1 score as a function of question length. Longer questions remain challenging despite modern encoders.}
+    \label{fig:f1-length}
+\end{figure*}
+
+Finally, Figure~\ref{fig:cross-vs-bi} compares the cross-encoder and bi-encoder paradigms. Cross-encoders achieve higher accuracy but at greater computational cost, while SBERT-based bi-encoders provide faster inference with a modest drop in quality. This trade-off suggests bi-encoders are suitable for retrieval-style prefiltering, with cross-encoders reserved for high-precision reranking.
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{CrossEncoder_vs_BiEncoder.png}
+    \caption{Cross-encoder vs. bi-encoder performance. Cross-encoders lead on accuracy; bi-encoders offer speed and scalability.}
+    \label{fig:cross-vs-bi}
+\end{figure*}
 
 \section{Conclusion}
 % intentionally left blank
