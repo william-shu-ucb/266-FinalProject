@@ -1,0 +1,2 @@
+epoch,steps,cosine_pearson,cosine_spearman
+1.0,25162,0.9618243538148397,0.8614683315679929
