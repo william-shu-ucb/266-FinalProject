@@ -118,14 +118,15 @@ SBERT (MiniLM-L6) & Title & 128 & 95.77\% & 95.75\% \\
 
 Performance also varies with input length. Titles are the most challenging setting: they are short and often missing key details such as configuration steps, environment information, or error messages. All models obtain their lowest scores on titles. Bodies and full posts provide considerably more information and lead to consistent improvements across all transformer architectures. These longer descriptions contain additional signals---logs, parameter values, and multi-step explanations---that help distinguish between issues that appear similar on the surface. Figure~\ref{fig:dataset-performance} illustrates this trend across model families.
 
-Among the evaluated architectures, ModernBERT benefits most from increased length. Its extended-context capacity allows it to retain information that other encoders truncate, resulting in the strongest performance on both bodies and full posts (up to 99.32\% F1). This length-dependent behavior differs from general-domain datasets such as QQP, where questions are short and rarely require long-range reasoning. In technical Q\&A forums, full-sequence context is often needed to understand the underlying issue, making models with longer context windows especially effective.
-
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{ModelPerformance.png}
+    \includegraphics[width=1.1\linewidth]{ModelPerformance.png}
     \caption{Model performance across the title, body, and post datasets. Transformer models outperform lexical baselines, with ModernBERT achieving the highest scores.}
     \label{fig:dataset-performance}
 \end{figure}
+
+Among the evaluated architectures, ModernBERT benefits most from increased length. Its extended-context capacity allows it to retain information that other encoders truncate, resulting in the strongest performance on both bodies and full posts (up to 99.32\% F1). This length-dependent behavior differs from general-domain datasets such as QQP, where questions are short and rarely require long-range reasoning. In technical Q\&A forums, full-sequence context is often needed to understand the underlying issue, making models with longer context windows especially effective.
+
 
 \subsection{Accuracy--Efficiency Trade-offs}
 
