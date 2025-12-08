@@ -20,16 +20,17 @@
 
 \begin{document}
 \maketitle
-
 \begin{abstract}
+Duplicate question detection is essential for maintaining knowledge quality in large technical Q\&A communities, where users may describe the same issue with different terminology, error messages, or code snippets. While prior work focuses mainly on general-domain datasets such as Quora Question Pairs (QQP), it is unclear whether these findings extend to longer and more complex technical posts. In this study, we evaluate lexical and transformer-based models on a reconstructed dataset derived from the sentence-transformers stackexchange-duplicates corpus. We examine titles, bodies, and full posts to assess how input length and linguistic complexity affect model performance. Transformer models substantially outperform a TF-IDF baseline, and long-context encoders achieve the highest accuracy on full posts. Our results show that although several trends observed in QQP carry over, technical-domain duplicate detection introduces length-dependent behaviors that highlight the need for domain-specific evaluation.
 \end{abstract}
 
+
 \section{Introduction}
-Duplicate questions are a recurring challenge in large technical Q\&A communities such as StackExchange. When multiple users independently describe the same underlying issue, they often use different terminology, error messages, or snippets of code. In result, answers become fragmented and harder to discover. Automatically identifying duplicates not only reduces redundancy for moderators, but also helps users find existing solutions more quickly, improving the overall efficiency of information retrieval.
+Duplicate questions are a recurring challenge in large technical Q\&A communities such as StackExchange. When multiple users independently describe the same underlying issue, they often use different terminology, error messages, or snippets of code. As a result, answers become fragmented and harder to discover. Automatically identifying duplicates not only reduces redundancy for moderators, but also helps users find existing solutions more quickly, improving the overall efficiency of information retrieval.
 
-Most existing research on duplicate-question detection focuses on the Quora Question Pairs (QQP) dataset, where questions are short, conversational, and often lexically similar. Technical forums differ substantially: posts are longer, contain domain-specific words, and may describe the same problem in different ways. As a result, it is unclear whether conclusions drawn from QQP could be generalized to technical centralized discussions.
+Most existing research on duplicate-question detection focuses on the Quora Question Pairs (QQP) dataset, where questions are short, conversational, and often lexically similar. Technical forums differ substantially: posts are longer, contain domain-specific words, and may describe the same problem in different ways. As a result, it is unclear whether conclusions drawn from QQP could be generalized to technical domains.
 
-In this project, we investigate duplicate detection in a technical domain using data derived from the sentence-transformers/stackexchange-duplicates published on HuggingFace. We analyze how linguistic complexity affects model performance by evaluating several modeling paradigms, ranging from simple models to modern transformer-based representations. In this project, we investigate duplicate detection in a technical domain using data derived from the sentence-transformers/stackexchange-duplicates corpus. We analyze how linguistic complexity affects model performance by evaluating several modeling paradigms, ranging from lexical similarity to modern transformer-based representations, on questions of varying length and structure. Our goal is to evaluate how different modeling approaches, ranging from lexical similarity to transformer-based architectures, perform on detecting technical duplicate questions, and to assess whether methods successful on QQP continue to perform well when applied to longer, domain-specific StackExchange posts.
+In this project, we investigate duplicate detection in a technical domain using data derived from the sentence-transformers/stackexchange-duplicates published on HuggingFace. We analyze how linguistic complexity affects model performance by evaluating several modeling paradigms, ranging from simple models to modern transformer-based representations on questions of varying length and structure. Our goal is to evaluate how different modeling approaches, ranging from lexical similarity to transformer-based architectures, perform on detecting technical duplicate questions, and to assess whether methods successful on QQP continue to perform well when applied to longer, domain-specific StackExchange posts.
 
 \section{Background}
 Duplicate question detection has been explored across many Q\&A platforms, from general purpose forums to technical ones. Researchers use approaches from classical lexical models to modern transformer-based architectures. In general domains, datasets such as the Quora Question Pairs (QQP) collection have been widely used; \citep{sharma2019quora}, for example, show that both classical and neural models can perform well on short, conversational question pairs. However, such datasets contain relatively simple language compared with technical environments, where posts often include code, error messages, and longer problem descriptions.
@@ -75,35 +76,83 @@ All models are fine-tuned separately for the title, body, and post datasets. We 
 Evaluation follows the cluster-aware splits described earlier: all questions belonging to the same duplicate cluster remain within the same split to avoid label leakage. Models are selected based on validation performance and evaluated on accuracy and F1 score, with F1 providing a more balanced measure in scenarios where false positives and false negatives carry asymmetric costs. Using three textual views, titles, bodies, and full posts, allows us to examine how model performance scales with increasing linguistic complexity.
 
 \section{Results and Discussion}
-Figure~\ref{fig:dataset-performance} compares model performance across the title, body, and post datasets. As expected, accuracy declines as inputs become longer and more variable, but ModernBERT and RoBERTa cross-encoders consistently outperform lexical and lighter transformer baselines, indicating the value of richer token interactions for technical text.
+
+\subsection{Effects of Model Architecture and Text Length}
+Transformer models substantially outperform the TF-IDF baseline across all three datasets. As shown in Table~\ref{tab:overall}, the baseline achieves only 61--67\% F1, indicating that lexical overlap alone is not sufficient for identifying technical-domain duplicates. All transformer architectures exceed 95\% F1, underscoring the importance of contextual representations for this task.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{l l c c c}
+\hline
+\textbf{Model} & \textbf{Dataset} & \textbf{Max Len} & \textbf{Acc.} & \textbf{F1} \\
+\hline
+TF-IDF + LR & Title & N/A & 69.62\% & 66.65\% \\
+            & Body  & N/A & 64.26\% & 61.58\% \\
+            & Post  & N/A & 66.41\% & 64.83\% \\
+\hline
+BERT-base   & Title & 64  & 95.71\% & 95.67\% \\
+            & Body  & 512 & 97.87\% & 97.87\% \\
+            & Post  & 512 & 98.59\% & 98.59\% \\
+\hline
+RoBERTa-base & Title & 128 & 96.31\% & 96.28\% \\
+             & Body  & 512 & 97.52\% & 97.51\% \\
+             & Post  & 512 & 98.73\% & 98.72\% \\
+\hline
+DeBERTa-base & Title & 128 & 97.52\% & 97.53\% \\
+             & Body  & 256 & 98.21\% & 98.21\% \\
+             & Post  & 256 & 99.12\% & 99.12\% \\
+\hline
+ModernBERT-base & Title & 256  & 97.64\% & 97.64\% \\
+                & Body  & 1024 & 98.73\% & 98.73\% \\
+                & Post  & 1024 & 99.32\% & 99.32\% \\
+\hline
+SBERT (MiniLM-L6) & Title & 128 & 95.77\% & 95.75\% \\
+                  & Body  & 256 & 97.49\% & 97.49\% \\
+                  & Post  & 256 & 98.40\% & 98.40\% \\
+\hline
+\end{tabular}
+\caption{Performance of all models across Title, Body, and Post tasks. Transformer models outperform the lexical baseline by a large margin, with long-context encoders performing best on full posts.}
+\label{tab:overall}
+\end{table}
+
+Performance also varies with input length. Titles are the most challenging setting: they are short and often missing key details such as configuration steps, environment information, or error messages. All models obtain their lowest scores on titles. Bodies and full posts provide considerably more information and lead to consistent improvements across all transformer architectures. These longer descriptions contain additional signals---logs, parameter values, and multi-step explanations---that help distinguish between issues that appear similar on the surface. Figure~\ref{fig:dataset-performance} illustrates this trend across model families.
+
+Among the evaluated architectures, ModernBERT benefits most from increased length. Its extended-context capacity allows it to retain information that other encoders truncate, resulting in the strongest performance on both bodies and full posts (up to 99.32\% F1). This length-dependent behavior differs from general-domain datasets such as QQP, where questions are short and rarely require long-range reasoning. In technical Q\&A forums, full-sequence context is often needed to understand the underlying issue, making models with longer context windows especially effective.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{Performance_across_Datasets.png}
-    \caption{Model accuracy across the title, body, and post datasets. Performance drops on longer inputs, with ModernBERT retaining the highest scores.}
+    \includegraphics[width=0.95\linewidth]{ModelPerformance.png}
+    \caption{Model performance across the title, body, and post datasets. Transformer models outperform lexical baselines, with ModernBERT achieving the highest scores.}
     \label{fig:dataset-performance}
 \end{figure}
 
-Figure~\ref{fig:f1-length} highlights how F1 varies with question length. The cross-encoder models maintain stable precision and recall on short and medium examples, but performance decreases on the longest posts, suggesting further gains could come from length-aware truncation or hierarchical encoding.
+\subsection{Accuracy--Efficiency Trade-offs}
 
-\begin{figure*}[ht]
+Cross-encoders achieve the highest overall accuracy, particularly on longer inputs. ModernBERT, which serves as the representative cross-encoder in Figure~\ref{fig:cross-vs-bi}, obtains the strongest results across all datasets. Its full cross-attention mechanism enables rich token-level interactions between the paired questions, but this also leads to higher computational cost and slower inference.
+
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=\textwidth]{f1_vs_length.png}
-    \caption{F1 score as a function of question length. Longer questions remain challenging despite modern encoders.}
-    \label{fig:f1-length}
-\end{figure*}
-
-Finally, Figure~\ref{fig:cross-vs-bi} compares the cross-encoder and bi-encoder paradigms. Cross-encoders achieve higher accuracy but at greater computational cost, while SBERT-based bi-encoders provide faster inference with a modest drop in quality. This trade-off suggests bi-encoders are suitable for retrieval-style prefiltering, with cross-encoders reserved for high-precision reranking.
-
-\begin{figure*}[ht]
-    \centering
-    \includegraphics[width=\textwidth]{CrossEncoder_vs_BiEncoder.png}
-    \caption{Cross-encoder vs. bi-encoder performance. Cross-encoders lead on accuracy; bi-encoders offer speed and scalability.}
+    \includegraphics[width=0.95\linewidth]{CrossVSBiEncoder.png}
+    \caption{Comparison of cross-encoder and bi-encoder performance across datasets. Cross-encoders deliver higher accuracy, while bi-encoders offer greater efficiency.}
     \label{fig:cross-vs-bi}
-\end{figure*}
+\end{figure}
+
+Bi-encoders offer a different set of advantages. SBERT encodes each question independently and removes cross-attention, enabling efficient batched inference and large-scale retrieval. As shown in Figure~\ref{fig:cross-vs-bi}, SBERT MPNet-base trails ModernBERT by only 0.6--0.7 F1 points on bodies and posts, despite being far more efficient to run. This modest gap makes bi-encoders appealing for retrieval-heavy or latency-sensitive applications.
+
+Within the cross-encoder family, RoBERTa-base provides a reasonable compromise between performance and computational overhead. It matches or nearly matches the accuracy of DeBERTa-base while requiring fewer resources. For deployment scenarios with throughput constraints, RoBERTa offers a practical alternative to heavier long-context models.
+
+
+\subsection{Relation to Prior Work on General-Domain Duplicate Detection}
+
+Several trends observed in QQP carry over: transformer encoders outperform lexical baselines, and cross-encoders outperform bi-encoders. However, the technical domain introduces differences that shift performance patterns. Longer inputs improve accuracy, especially for long-context models. This effect does not appear in QQP, where question length is uniform and short. Lexical baselines are also weaker in the technical setting due to higher variability in terminology and problem framing.
+
+Overall, transformer architectures transfer well across domains, but technical duplicate detection places greater emphasis on context length and domain-specific detail. As a result, general-domain benchmarks only partially predict performance in technical Q\&A environments.
 
 \section{Conclusion}
-% intentionally left blank
+
+We investigated duplicate question detection in a technical Q\&A domain using lexical and transformer-based models. All transformer architectures outperform the TF-IDF baseline, confirming that surface-level similarity is insufficient for technical posts. Performance varies by input length: models achieve their lowest scores on titles and improve steadily on bodies and full posts, with long-context encoders showing the largest gains. These trends differ from general-domain datasets such as QQP, where questions are short and less sensitive to context length. Cross-encoders remain the most accurate models, while bi-encoders provide competitive performance with lower computational cost. RoBERTa offers a strong accuracy--efficiency balance, and ModernBERT performs best when longer text is available. Overall, the results indicate that while transformer-based approaches transfer well across domains, technical duplicate detection requires attention to context length and domain-specific structure. Future work may explore retrieval--reranking pipelines, domain adaptation, and more fine-grained modeling of technical content such as code and error logs.
+
 
 \bibliography{references}
 
